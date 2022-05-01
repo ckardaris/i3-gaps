@@ -44,6 +44,7 @@ state INITIAL:
   'mode' -> MODE
   'bar' -> BAR
   'gaps' -> GAPS
+  'reset' -> call cmd_reset()
 
 state CRITERIA:
   ctype = 'class'       -> CRITERION

@@ -135,6 +135,7 @@ typedef struct owindow {
 typedef TAILQ_HEAD(owindows_head, owindow) owindows_head;
 
 static owindows_head owindows;
+static bool owindows_lock = false;
 
 /*
  * Initializes the specified 'Match' data structure and the initial state of
@@ -142,6 +143,8 @@ static owindows_head owindows;
  *
  */
 void cmd_criteria_init(I3_CMD) {
+    if (owindows_lock)
+        return;
     Con *con;
     owindow *ow;
 
@@ -2437,4 +2440,24 @@ void cmd_gaps(I3_CMD, const char *type, const char *scope, const char *mode, con
     cmd_output->needs_tree_render = true;
     // XXX: default reply for now, make this a better reply
     ysuccess(true);
+}
+
+/*
+ * Implementation of 'reset'
+ *
+ */
+void cmd_reset(I3_CMD) {
+    owindows_lock = true;
+    owindow *current;
+
+    DLOG("Command reassign\n");
+    HANDLE_EMPTY_MATCH;
+
+    TAILQ_FOREACH (current, &owindows, owindows) {
+        if (current->con->window)
+            reset_window(current->con->window);
+    }
+
+    ysuccess(true);
+    owindows_lock = false;
 }

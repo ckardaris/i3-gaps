@@ -79,3 +79,40 @@ Assignment *assignment_for(i3Window *window, int type) {
 
     return NULL;
 }
+
+/*
+ * Checks the list of assignments for the given window and reruns all matching
+ * ones, resetting the window state as if it was launched at that moment.
+ *
+ */
+void reset_window(i3Window *window) {
+    bool needs_tree_render = false;
+
+    DLOG("Rerun assignments\n");
+    Assignment *current;
+    TAILQ_FOREACH (current, &assignments, assignments) {
+        if (!match_matches_window(&(current->match), window))
+            continue;
+
+        char *full_command;
+        if (current->type == A_COMMAND) {
+            sasprintf(&full_command, "[id=\"%d\"] %s", window->id, current->dest.command);
+        }
+        else if (current->type == A_TO_WORKSPACE) {
+            sasprintf(&full_command, "[id=\"%d\"] %s %s", window->id, "move to workspace", current->dest.workspace);
+        }
+        else
+            continue;
+
+        CommandResult *result = parse_command(full_command, NULL, NULL);
+        free(full_command);
+
+        if (result->needs_tree_render)
+            needs_tree_render = true;
+
+        command_result_free(result);
+    }
+
+    if (needs_tree_render)
+        tree_render();
+}

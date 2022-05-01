@@ -23,3 +23,10 @@ void run_assignments(i3Window *window);
  *
  */
 Assignment *assignment_for(i3Window *window, int type);
+
+/*
+ * Checks the list of assignments for the given window and reruns all matching
+ * ones, resetting the window state as if it was launched at that moment.
+ *
+ */
+void reset_window(i3Window *window);
