@@ -29,4 +29,4 @@ Assignment *assignment_for(i3Window *window, int type);
  * ones, resetting the window state as if it was launched at that moment.
  *
  */
-void reset_window(i3Window *window);
+void reset_window(i3Window *window, yajl_gen gen, ipc_client *client);

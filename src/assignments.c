@@ -85,7 +85,7 @@ Assignment *assignment_for(i3Window *window, int type) {
  * ones, resetting the window state as if it was launched at that moment.
  *
  */
-void reset_window(i3Window *window) {
+void reset_window(i3Window *window, yajl_gen gen, ipc_client *client) {
     bool needs_tree_render = false;
 
     DLOG("Rerun assignments\n");
@@ -104,7 +104,7 @@ void reset_window(i3Window *window) {
         else
             continue;
 
-        CommandResult *result = parse_command(full_command, NULL, NULL);
+        CommandResult *result = parse_command(full_command, gen, client);
         free(full_command);
 
         if (result->needs_tree_render)

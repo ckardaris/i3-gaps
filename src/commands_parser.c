@@ -150,6 +150,7 @@ static Match current_match;
 static struct stack stack;
 static struct CommandResultIR subcommand_output;
 static struct CommandResultIR command_output;
+static bool json_open = false;
 
 #include "GENERATED_command_call.h"
 
@@ -246,8 +247,13 @@ CommandResult *parse_command(const char *input, yajl_gen gen, ipc_client *client
 
     /* A YAJL JSON generator used for formatting replies. */
     command_output.json_gen = gen;
+    bool json_opened_by_me = false;
 
-    y(array_open);
+    if (!json_open) {
+        y(array_open);
+        json_open = true;
+        json_opened_by_me = true;
+    }
     command_output.needs_tree_render = false;
 
     const char *walk = input;
@@ -426,7 +432,10 @@ CommandResult *parse_command(const char *input, yajl_gen gen, ipc_client *client
         }
     }
 
-    y(array_close);
+    if (json_opened_by_me) {
+        y(array_close);
+        json_open = false;
+    }
 
     result->needs_tree_render = command_output.needs_tree_render;
     return result;
